@@ -1,0 +1,31 @@
+data email_list;
+    input Name $ Email $;
+    datalines;
+John john@example.com
+Jane jane@example.com
+;
+run;
+
+%let from_address = your_email@example.com;  /* Your email address */
+%let subject = "Your Subject Here";            /* Email subject */
+
+data _null_;
+    set email_list;                            /* Use your dataset here */
+
+    /* Construct the email */
+    file email out;
+
+    /* Specify the email attributes */
+    put "To: " Email;
+    put "From: " "&from_address";
+    put "Subject: " "&subject";
+    put "Content-Type: text/plain";
+    put; /* Blank line to separate headers from body */
+    
+    /* Email body */
+    put "Hello " Name ",";
+    put;
+    put "Your personalized message goes here.";
+    put "Best regards,";
+    put "Your Name";  /* Your name */
+run;
