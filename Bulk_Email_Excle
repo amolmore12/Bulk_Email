@@ -1,0 +1,43 @@
+Sub SendBulkEmail()
+    Dim OutApp As Object
+    Dim OutMail As Object
+    Dim ws As Worksheet
+    Dim i As Integer
+    Dim lastRow As Integer
+    Dim emailAddress As String
+    Dim subject As String
+    Dim body As String
+    
+    ' Set the worksheet
+    Set ws = ThisWorkbook.Sheets("Sheet1") ' Change Sheet1 to your sheet name
+    
+    ' Create Outlook application
+    Set OutApp = CreateObject("Outlook.Application")
+    
+    ' Get the last row with data in column A
+    lastRow = ws.Cells(ws.Rows.Count, "A").End(xlUp).Row
+    
+    ' Loop through each email address
+    For i = 2 To lastRow ' Assuming the first row is a header
+        emailAddress = ws.Cells(i, 1).Value ' Email address in column A
+        
+        ' Customize your subject and body here
+        subject = "Your Subject Here"
+        body = "Hello " & ws.Cells(i, 2).Value & "," & vbCrLf & vbCrLf & "Your message here." ' If you have a name in column B
+        
+        ' Create the email
+        Set OutMail = OutApp.CreateItem(0)
+        With OutMail
+            .To = emailAddress
+            .Subject = subject
+            .Body = body
+            .Send ' Use .Display if you want to review before sending
+        End With
+        Set OutMail = Nothing
+    Next i
+    
+    ' Clean up
+    Set OutApp = Nothing
+    
+    MsgBox "Emails sent!"
+End Sub
