@@ -1,0 +1,42 @@
+CREATE TABLE EmailList (
+    ID INT PRIMARY KEY,
+    Name NVARCHAR(100),
+    Email NVARCHAR(255)
+);
+
+INSERT INTO EmailList (ID, Name, Email) VALUES
+(1, 'John Doe', 'john@example.com'),
+(2, 'Jane Smith', 'jane@example.com');
+
+DECLARE @Email NVARCHAR(255);
+DECLARE @Name NVARCHAR(100);
+DECLARE @Subject NVARCHAR(255);
+DECLARE @Body NVARCHAR(MAX);
+
+DECLARE email_cursor CURSOR FOR
+SELECT Name, Email FROM EmailList;
+
+OPEN email_cursor;
+
+FETCH NEXT FROM email_cursor INTO @Name, @Email;
+
+WHILE @@FETCH_STATUS = 0
+BEGIN
+    SET @Subject = 'Your Subject Here';
+    SET @Body = 'Hello ' + @Name + ',' + CHAR(13) + CHAR(10) +
+                 'This is your personalized message.' + CHAR(13) + CHAR(10) +
+                 'Best regards,' + CHAR(13) + CHAR(10) +
+                 'Your Name';
+
+    EXEC msdb.dbo.sp_send_dbmail
+        @profile_name = 'YourProfileName',  -- Replace with your Database Mail profile
+        @recipients = @Email,
+        @subject = @Subject,
+        @body = @Body,
+        @body_format = 'TEXT';  -- Use 'HTML' for HTML formatted emails
+
+    FETCH NEXT FROM email_cursor INTO @Name, @Email;
+END;
+
+CLOSE email_cursor;
+DEALLOCATE email_cursor;
